@@ -1,5 +1,5 @@
 package com.example.demo.model;
-import java.util.Date;
+
 import java.util.List;
 
 import javax.persistence.Column;
@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.springframework.data.annotation.CreatedDate;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
