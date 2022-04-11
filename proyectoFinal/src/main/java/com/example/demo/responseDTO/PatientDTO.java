@@ -11,6 +11,7 @@ public class PatientDTO {
     private Integer id;
     private String fullName;
     private Date birthDate;
+    private String ped;
     private List<VitalSignDTO> vitalSignsDTO;
 
     public PatientDTO() {
@@ -20,6 +21,7 @@ public class PatientDTO {
         this.id = patient.getId();
         this.fullName = patient.getFullName();
         this.birthDate = patient.getBirthDate();
+        this.ped= patient.getPed();
         this.vitalSignsDTO = new ArrayList<>();
         patient.getVitalSigns().forEach(sv -> this.vitalSignsDTO.add(new VitalSignDTO(sv)));
     }
@@ -55,4 +57,12 @@ public class PatientDTO {
     public void setSignosVitalesDTO(List<VitalSignDTO> signosVitalesDTO) {
         this.vitalSignsDTO = signosVitalesDTO;
     }
+
+	public String getPed() {
+		return ped;
+	}
+
+	public void setPed(String ped) {
+		this.ped = ped;
+	}
 }

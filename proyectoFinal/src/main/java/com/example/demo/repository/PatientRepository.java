@@ -12,4 +12,5 @@ public interface PatientRepository extends GenericRepository<Patient, Integer> {
     public List<Patient> findAll();
 
     public Patient findByFullName(String fullName);
+    public Patient findByBirthDate(String birthDate);
 }

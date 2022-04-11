@@ -16,12 +16,11 @@ public class Employee {
     @Id
     @Column(name = "user")
     private String user;
-
-    @Column(name = "password")
-    private String password;
-
     @Column(name = "name")
     private String fullName;
+    
+    @Column(name = "password")
+    private String password;
 
     @Column(name = "active")
     private boolean active;
@@ -32,10 +31,10 @@ public class Employee {
     public Employee() {
     }
 
-    public Employee(String user, String password, String fullName, boolean active, List<Rol> rol) {
+    public Employee(String user, String fullName,String password, boolean active, List<Rol> rol) {
         this.user = user;
-        this.password = password;
         this.fullName = fullName;
+        this.password = password;
         this.active = active;
         this.rol = rol;
     }

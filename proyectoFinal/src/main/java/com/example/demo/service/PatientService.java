@@ -42,6 +42,13 @@ public class PatientService extends GenericService<Patient, Integer> {
             return new PatientDTO(foundPatient);
         return null;
     }
+    
+    public PatientDTO getPatientByBirthDate(String birthDate){
+        Patient foundPatient = ((PatientRepository) genericRepository).findByBirthDate(birthDate);
+        if(foundPatient != null)
+            return new PatientDTO(foundPatient);
+        return null;
+    }
 //agregar pacientes
     @Transactional
     public PatientDTO addPatient(Patient newPatient){
@@ -71,13 +78,14 @@ public class PatientService extends GenericService<Patient, Integer> {
         }
         return null;
     }
-// actualizar el estado de un paciente
+// actualizar paciente
     @Transactional
     public PatientDTO updatePatient(Integer id, Patient updatedPatient){
         Patient foundPatient = genericRepository.findById(id).orElse(null);
         if(foundPatient != null){
             foundPatient.setFullName(updatedPatient.getFullName());
             foundPatient.setBirthDate(updatedPatient.getBirthDate());
+            foundPatient.setPed(updatedPatient.getPed());
             return new PatientDTO(foundPatient);
         }
         return null;

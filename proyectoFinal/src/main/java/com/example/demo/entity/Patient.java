@@ -27,6 +27,9 @@ public class Patient implements GenericEntity<Patient, Integer> {
 
     @Column(name = "birth_date")
     private Date birthDate;
+    
+    @Column (name= "pre-existing_diseases")
+    private String ped;
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
     private List<VitalSign> vitalSigns;
@@ -34,9 +37,10 @@ public class Patient implements GenericEntity<Patient, Integer> {
     public Patient() {
     }
 
-    public Patient(String fullName, Date birthDate, List<VitalSign> vitalSigns) {
+    public Patient(String fullName, Date birthDate,String ped, List<VitalSign> vitalSigns) {
         this.fullName = fullName;
         this.birthDate = birthDate;
+        this.ped= ped;
         this.vitalSigns = vitalSigns;
     }
 
@@ -79,13 +83,23 @@ public class Patient implements GenericEntity<Patient, Integer> {
     public void setVitalSigns(List<VitalSign> vitalSigns) {
         this.vitalSigns = vitalSigns;
     }
+    
 
-    @Override
+    public String getPed() {
+		return ped;
+	}
+
+	public void setPed(String ped) {
+		this.ped = ped;
+	}
+
+	@Override
     public String toString() {
         return "Paciente{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", birthDate=" + birthDate +
+                ", ped="+ ped +
                 ", vitalSigns=" + vitalSigns +
                 '}';
     }
