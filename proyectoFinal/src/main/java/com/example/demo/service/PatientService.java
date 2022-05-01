@@ -2,8 +2,6 @@ package com.example.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-
 import com.example.demo.entity.Patient;
 import com.example.demo.entity.VitalSign;
 import com.example.demo.generic.GenericService;
