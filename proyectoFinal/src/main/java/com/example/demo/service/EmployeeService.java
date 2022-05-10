@@ -16,7 +16,7 @@ import com.example.demo.responseDTO.RolDTO;
 
 
 @Service
-public class EmployeeService {
+public class EmployeeService  {
 
 	private EmployeeRepository employeeRepository;
 

@@ -6,13 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import com.example.demo.entity.Patient;
+import com.example.demo.entity.VitalSign;
 import com.example.demo.responseDTO.PatientDTO;
 import com.example.demo.service.PatientService;
 
@@ -20,123 +20,111 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pacientes")
-@Tag(name = "Paciente", description = "API de pacientes")
+@Tag(name = "Patient", description = "API de pacientes")
 public class PatientController {
 
 	@Autowired
 	private PatientService patientService;
 
-	// MUESTRA TODOS LOS PACIENTES
-	@Operation(summary = "Listar todos los pacientes", description = "Servicio para obtener el listado de todos los pacientes.")
+	// Muestra los pacientes
+	@Operation(summary = "List all patients", description = "Service to obtain the list of all patients.")
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_NURSE')")
 	@GetMapping
 	@ResponseStatus( code = HttpStatus.OK)
-	public List<PatientDTO> listarPacientes() {
-		return patientService.listarPacientes();
+	public List<PatientDTO> getPatients() {
+		return patientService.getPatients();
 	}
 
-	// MUESTRA LOS DATOS DE UN PACIENTE SOLICITADO POR EL ID
-	@Operation(summary = "Paciente por ID", description = "Servicio para obtener un paciente por su ID.")
+	// Muestra pacientes por id
+	@Operation(summary = "Patient by ID", description = "Service to get a patient by their ID.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Paciente encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "404", description = "No se encontro el paciente con el ID especificado", content = @Content(mediaType = "application/json")) })
+			@ApiResponse(responseCode = "200", description = "Patient found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Failed to auth", content = @Content(mediaType = "application/json")),
+			@ApiResponse(responseCode = "404", description = "Patient not found", content = @Content(mediaType = "application/json")) })
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_USER')")
-	@GetMapping("/buscarPorId/{idPaciente}")
-	public ResponseEntity<PatientDTO> obtenerPacientePorId(
-			@Parameter(name = "idPaciente", description = "Id del Paciente", allowEmptyValue = false) @PathVariable Integer idPaciente) {
-		PatientDTO dto = patientService.obtenerPacientePorId(idPaciente);
+	@GetMapping("/buscarPorId/{patientID}")
+	public ResponseEntity<PatientDTO> getPatientById(
+			@Parameter(name = "patientID", description = "Patient id", allowEmptyValue = false) @PathVariable Integer patientID) {
+		PatientDTO dto = patientService.getPatientById(patientID);
 		return (dto != null ? ResponseEntity.ok().body(dto) : ResponseEntity.notFound().build());
 	}
 
-	// MUESTRA LOS DATOS DE UN PACIENTE SOLICITADO POR EL NOMBRE
-	@Operation(summary = "Paciente por Nombre", description = "Servicio para obtener un paciente por su Nombre.")
+	// Muestra los pacientes por nombre
+	@Operation(summary = "Patient by name", description = "Service to get a patient by name.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Paciente encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "404", description = "No se encontro el paciente con el Nombre especificado", content = @Content(mediaType = "application/json")) })
+			@ApiResponse(responseCode = "200", description = "Patient found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Failed to auth", content = @Content(mediaType = "application/json")),
+			@ApiResponse(responseCode = "404", description = "Patient not found", content = @Content(mediaType = "application/json")) })
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_NURSE')")
-	@GetMapping("/buscarPorNombre/{nombrePaciente}")
-	public ResponseEntity<PatientDTO> obtenerPacientePorNombre(@PathVariable String nombrePaciente) {
-		PatientDTO dto = patientService.obtenerPacientePorNombre(nombrePaciente);
+	@GetMapping("/getByFullName/{patientFullName}")
+	public ResponseEntity<PatientDTO> getPatientByFullName(@PathVariable String patientFullName) {
+		PatientDTO dto = patientService.getPatientByFullName(patientFullName);
 		return (dto != null ? ResponseEntity.ok().body(dto) : ResponseEntity.notFound().build());
 	}
 
-	// AGREGA UN PACIENTE NUEVO
-	@Operation(summary = "Agregar un paciente", description = "Servicio para agregar un paciente.")
+	// Agregar pacientes
+	@Operation(summary = "Add patient", description = "Service to add a patient.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "Paciente agregado satisfactoriamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")) })
+			@ApiResponse(responseCode = "201", description = "Patient added successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Failed to auth", content = @Content(mediaType = "application/json")) })
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_NURSE')")
-	@PostMapping("/agregarPaciente")
-	public ResponseEntity<PatientDTO> agregarPaciente(@RequestBody Paciente pacienteNuevo) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.agregarPaciente(pacienteNuevo));
+	@PostMapping("/addPatient")
+	public ResponseEntity<PatientDTO> addPatient(@RequestBody Patient pacienteNuevo) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.addPatient(pacienteNuevo));
 	}
 
-	// AGREGA UNA LISTA DE PACIENTES
-	@Operation(summary = "Agregar lista de pacientes", description = "Servicio para agregar una lista de pacientes.")
+	// Agregar lista de pacientes
+	@Operation(summary = "Add patient list", description = "Service to add a list of patients.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "Lista de pacientes agregada satisfactoriamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")) })
+			@ApiResponse(responseCode = "201", description = "Patient lista added successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Failed to auth", content = @Content(mediaType = "application/json")) })
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_NURSE')")
-	@PostMapping("/agregarPacientes")
-	public ResponseEntity<List<PatientDTO>> agregarListaPacientes(@RequestBody List<Paciente> lista) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.agregarListaPacientes(lista));
+	@PostMapping("/addPatients")
+	public ResponseEntity<List<PatientDTO>> addPatientList(@RequestBody List<Patient> list) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.addPatientList(list));
 	}
 
 	// AGREGA UN SIGNO VITAL A UN PACIENTE
-	@Operation(summary = "Agregar signo vital", description = "Servicio para agregar un signo vital a un paciente mediante su ID.")
+	@Operation(summary = "Add vital sign", description = "Service to add a vital sign to a patient using their ID.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "Se agregaron los signos vitales satisfactoriamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "404", description = "No se encontro el paciente con el ID especificado", content = @Content(mediaType = "application/json")) })
+			@ApiResponse(responseCode = "201", description = "Vital Sign added successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Failed to auth", content = @Content(mediaType = "application/json")),
+			@ApiResponse(responseCode = "404", description = "Patient not found", content = @Content(mediaType = "application/json")) })
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_NURSE')")
-	@PutMapping("/agregarSignoVitalAPaciente/{idPaciente}")
-	public ResponseEntity<PatientDTO> agregarSignoVital(@PathVariable Integer idPaciente,
-			@RequestBody SignoVital signoVitalNuevo) {
-		PatientDTO dto = patientService.agregarSignoVital(idPaciente, signoVitalNuevo);
+	@PutMapping("/addVitalSignToPatient/{patientID}")
+	public ResponseEntity<PatientDTO> agregarSignoVital(@PathVariable Integer patientID,
+			@RequestBody VitalSign vitalSignNew) {
+		PatientDTO dto = patientService.addVitalSign(patientID, vitalSignNew);
 		return (dto != null ? ResponseEntity.status(HttpStatus.CREATED).body(dto)
 				: ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 
-	// ACTUALIZA EL NOMBRE Y LA FECHA DE NACIMIENTO DE UN PACIENTE
-	@Operation(summary = "Actualizar nombre y fecha de nacimiento", description = "Servicio para actualizar el nombre y la fecha de nacimiento de un paciente.")
+	//Actualizar paciente
+	@Operation(summary = "Update name and date of birth", description = "Service to update a patient's name and date of birth.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "Se actualizo el paciente satisfactoriamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "404", description = "No se encontro el paciente con el ID especificado", content = @Content(mediaType = "application/json")) })
+			@ApiResponse(responseCode = "201", description = "Patient updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PatientDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Failed to auth", content = @Content(mediaType = "application/json")),
+			@ApiResponse(responseCode = "404", description = "Patient not found", content = @Content(mediaType = "application/json")) })
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_NURSE')")
-	@PutMapping("/actualizarPaciente/{idPaciente}")
-	public ResponseEntity<PatientDTO> actualizarPaciente(@PathVariable Integer idPaciente, @RequestBody Paciente pacienteActualizado) {
-		PatientDTO dto = patientService.actualizarPaciente(idPaciente, pacienteActualizado);		
+	@PutMapping("/updatePatient/{patientID}")
+	public ResponseEntity<PatientDTO> updatePatient(@PathVariable Integer patientID, @RequestBody Patient updatedPatient) {
+		PatientDTO dto = patientService.updatePatient(patientID, updatedPatient);		
 		return (dto != null ? ResponseEntity.status(HttpStatus.CREATED).body(dto)
 				: ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 
-	// BORRAR UN PACIENTE Y SUS SIGNOS VITALES
-	@Operation(summary = "Borrar un paciente", description = "Servicio para borrar un paciente por su ID.")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "204", description = "Se actualizo el paciente satisfactoriamente", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "401", description = "Fallo la autenticación", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "404", description = "No se encontro el paciente con el ID especificado", content = @Content(mediaType = "application/json")) })
-	@PreAuthorize("hasAuthority('SCOPE_ROLE_DOCTOR')")
-	@DeleteMapping("/borrarPaciente/{idPaciente}")
-	public ResponseEntity<?> borrarPaciente(@PathVariable Integer idPaciente) {		
-		return (patientService.borrarPaciente(idPaciente)?ResponseEntity.status(HttpStatus.NO_CONTENT).build():ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-		
-	}
+	// Borrar un paciente
+	  @PreAuthorize("hasAuthority('SCOPE_ROLE_DOCTOR')")
+	    @DeleteMapping("/deletePatient/{id}")
+	    @Operation(summary = "Delete patient", description = "Service to eliminate a patient")
+	    public void deletePatient(@PathVariable Integer id){
+	        patientService.deletePatient(id);
+	    }
 
-	// BORRAR UN PACIENTE Y SUS SIGNOS VITALES (GENERIC)
-	@Operation(summary = "Borrar paciente mediante generics", description = "Servicio para borrar un paciente por su ID usando generics.")
-	@PreAuthorize("hasAuthority('SCOPE_ROLE_DOCTOR')")
-	@DeleteMapping("/borrarPacienteG/{idPaciente}")
-	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	public void borrarPacienteG(@PathVariable Integer idPaciente) {
-		patientService.deleteById(idPaciente);
-	}
 
-	// COUNT (GENERIC)
-	@Operation(summary = "Cantidad de pacientes", description = "Servicio para obtener el numero total de pacientes del sistema.")
+
+	// Count
+	@Operation(summary = "Number of patients", description = "Service to obtain the total number of patients in the system.")
 	@PreAuthorize("hasAuthority('SCOPE_ROLE_DOCTOR')")
 	@GetMapping("/count")
 	@ResponseStatus(code = HttpStatus.OK)
