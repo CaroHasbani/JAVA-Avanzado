@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class Employee {
     @Id
     @Column(name = "user")
     private String user;
+    
     @Column(name = "name")
     private String fullName;
     
@@ -27,6 +29,9 @@ public class Employee {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Rol> rol;
+    
+    @OneToOne(cascade=CascadeType.REMOVE, optional=true)
+    private Patient patient;
 
     public Employee() {
     }

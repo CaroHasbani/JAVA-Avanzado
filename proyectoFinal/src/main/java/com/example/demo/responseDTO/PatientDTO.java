@@ -54,8 +54,8 @@ public class PatientDTO {
         return vitalSignsDTO;
     }
 
-    public void setSignosVitalesDTO(List<VitalSignDTO> signosVitalesDTO) {
-        this.vitalSignsDTO = signosVitalesDTO;
+    public void setSignosVitalesDTO(List<VitalSignDTO> vitalSignDTO) {
+        this.vitalSignsDTO = vitalSignDTO;
     }
 
 	public String getPed() {

@@ -1,5 +1,6 @@
 package com.example.demo.configuration;
 
+
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -9,6 +10,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -32,42 +34,58 @@ import java.security.interfaces.RSAPublicKey;
 @Configuration
 public class JwtConfig {
     @Value("${jwt.public.key}")
-    RSAPublicKey pubkey;
+    RSAPublicKey key;
 
     @Value("${jwt.private.key}")
-    RSAPrivateKey privkey;
+    RSAPrivateKey priv;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated())
-                .csrf((csrf) -> csrf.ignoringAntMatchers("/api/jwt"))
+    	
+        http
+                .authorizeHttpRequests(authorize -> 
+                	authorize
+                	.antMatchers("/api-medica-docs/**").permitAll()
+                	.antMatchers("/swagger-ui/**").permitAll()                	
+                    .antMatchers(HttpMethod.GET,"/api/users/**").permitAll()
+                    .antMatchers(HttpMethod.POST,"/api/users/**").permitAll()
+                    .antMatchers(HttpMethod.PUT,"/api/users/**").permitAll()
+                    .antMatchers(HttpMethod.DELETE,"/api/users/user/**").permitAll()
+                	.anyRequest().authenticated()
+                )        		
+                .csrf(csrf -> {
+                	csrf.ignoringAntMatchers("/api/jwt");
+                	csrf.ignoringAntMatchers("/api/users/**");                	
+                	csrf.ignoringAntMatchers("/swagger-ui/**"); 
+                })
                 .httpBasic(Customizer.withDefaults())
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling((exc) -> exc
+                .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                );
         return http.build();
     }
 
     @Bean
-    UserDetailsService users(DataSource dataSource){
+    UserDetailsService users(DataSource dataSource) {
         return new JdbcUserDetailsManager(dataSource);
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    JwtDecoder jwtDecoder(){
-        return NimbusJwtDecoder.withPublicKey(this.pubkey).build();
+    JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(this.key).build();
     }
 
     @Bean
-    JwtEncoder jwtEncoder(){
-        JWK jwk = new RSAKey.Builder(this.pubkey).privateKey(this.privkey).build();
+    JwtEncoder jwtEncoder() {
+        JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
